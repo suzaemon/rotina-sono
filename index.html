@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rotina da Luiza</title>
+<style>
+  :root{
+    --bg:#fdf6f0; --card:#ffffff; --primary:#e08ca0; --primary-dark:#c96a82;
+    --ok:#6fae8a; --warn:#e0a23c; --danger:#d9534f; --text:#3a2f33; --muted:#8c7e83;
+    --border:#f0dfe3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--bg); color:var(--text);
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:16px 16px 80px;}
+  h1{font-size:1.4rem; text-align:center; margin:12px 0 4px;}
+  .date-row{display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:16px;}
+  .date-row input{border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-size:0.95rem;}
+
+  .card{
+    background:var(--card); border-radius:16px; padding:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-bottom:16px;
+  }
+  .window-card{position:relative; overflow:hidden;}
+  .window-card.ok{border-left:6px solid var(--ok);}
+  .window-card.warn{border-left:6px solid var(--warn);}
+  .window-card.danger{border-left:6px solid var(--danger);}
+  .window-title{font-weight:600; font-size:1.1rem; margin-bottom:4px;}
+  .window-sub{color:var(--muted); font-size:0.85rem; margin-bottom:10px;}
+  .timer{font-size:2rem; font-weight:700; text-align:center; margin:8px 0;}
+  .timer.ok{color:var(--ok);} .timer.warn{color:var(--warn);} .timer.danger{color:var(--danger);}
+  .bar{height:8px; background:var(--border); border-radius:4px; overflow:hidden; margin-bottom:12px;}
+  .bar-fill{height:100%; background:var(--primary); transition:width .3s;}
+
+  .checklist{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}
+  .chip{
+    border:1px solid var(--border); border-radius:20px; padding:6px 12px; font-size:0.85rem;
+    background:#fff; color:var(--muted); user-select:none;
+  }
+  .chip.done{background:var(--ok); color:#fff; border-color:var(--ok);}
+
+  .actions{display:flex; flex-wrap:wrap; gap:8px;}
+  button{
+    border:none; border-radius:10px; padding:10px 14px; font-size:0.9rem; font-weight:600;
+    cursor:pointer; color:#fff; background:var(--primary);
+  }
+  button.secondary{background:#fff; color:var(--primary-dark); border:1px solid var(--primary);}
+  button.small{padding:6px 10px; font-size:0.8rem;}
+  button.danger-btn{background:var(--danger);}
+  button:active{opacity:0.85;}
+
+  table{width:100%; border-collapse:collapse; font-size:0.85rem;}
+  th,td{padding:6px 8px; text-align:left; border-bottom:1px solid var(--border);}
+  th{color:var(--muted); font-weight:600;}
+  .tag{display:inline-block; padding:2px 8px; border-radius:12px; font-size:0.75rem; color:#fff;}
+  .tag-despertou{background:#5b9bd5;} .tag-mamou{background:#e08ca0;}
+  .tag-dormiu{background:#6c63a8;} .tag-banho{background:#3cb6c9;}
+  .tag-atividade{background:#e0a23c;} .tag-ninar{background:#8d6a9f;}
+  .tag-despertar_noturno{background:#34495e;}
+  .detail-line{display:block; color:var(--muted); font-size:0.78rem; margin-top:2px;}
+
+  .empty{color:var(--muted); text-align:center; padding:20px 0; font-size:0.9rem;}
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.4); display:none;
+    align-items:flex-end; justify-content:center; z-index:50;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:#fff; border-radius:16px 16px 0 0; padding:20px; width:100%; max-width:720px;
+    max-height:85vh; overflow:auto;
+  }
+  .modal h3{margin-top:0;}
+  .modal label{display:block; font-size:0.85rem; color:var(--muted); margin:10px 0 4px;}
+  .modal input, .modal select, .modal textarea{
+    width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:1rem;
+    font-family:inherit;
+  }
+  .modal textarea{resize:vertical; min-height:60px;}
+  .subblock{
+    border-left:3px solid var(--primary); padding-left:10px; margin-top:14px;
+  }
+  .modal-actions{display:flex; gap:8px; margin-top:16px;}
+  .modal-actions button{flex:1;}
+
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--border);
+    display:flex; gap:8px; padding:10px 16px; justify-content:center; flex-wrap:wrap;
+  }
+  .footer-bar button{flex:1; max-width:160px;}
+  @media (min-width:600px){ .footer-bar{justify-content:center;} }
+
+  .banner{
+    border-radius:12px; padding:10px 14px; font-size:0.8rem; margin-bottom:12px; text-align:center;
+  }
+  .banner.setup{background:#fff4d6; color:#8a6d1c; border:1px solid #f0d98c;}
+  .banner.online{background:#e3f3ea; color:#2f6b4a; border:1px solid #bfe3cd;}
+  .banner.offline{background:#fde8e8; color:#a23a3a; border:1px solid #f3c2c2;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Rotina de Sono &amp; Cuidados — Luiza</h1>
+  <div id="syncBanner"></div>
+  <div class="date-row">
+    <span>📅</span>
+    <input type="date" id="dateInput">
+  </div>
+
+  <div id="currentWindowArea"></div>
+
+  <div class="card">
+    <div class="window-title" style="margin-bottom:8px;">Histórico do dia</div>
+    <div id="historyArea"></div>
+  </div>
+</div>
+
+<div class="footer-bar">
+  <button class="secondary" onclick="openModal('despertou')">☀️ Despertou</button>
+  <button class="secondary" onclick="openModal('mamou')">🍼 Mamou</button>
+  <button class="secondary" onclick="openModal('dormiu')">🌙 Dormiu</button>
+  <button class="secondary" onclick="openModal('despertar_noturno')">🌃 Desp. noturno</button>
+  <button class="secondary" onclick="openModal('outro')">➕ Outro</button>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Registrar evento</h3>
+    <input type="hidden" id="modalType">
+
+    <label>Horário</label>
+    <input type="time" id="fieldTime">
+
+    <div id="extraFields"></div>
+
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeModal()">Cancelar</button>
+      <button onclick="saveEvent()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+/* ---------- Configuração do Firebase ----------
+   Para sincronizar entre vários celulares, crie um projeto gratuito em
+   https://console.firebase.google.com, ative o "Firestore Database" (modo de teste)
+   e cole aqui o objeto de configuração do app Web (Configurações do projeto > Seus apps > Web).
+   Enquanto não preencher, o app funciona normalmente salvando só neste navegador. */
+const firebaseConfig = {
+  apiKey: "AIzaSyBVi0f7N1zuukujtRpj1mtMCpoBGurNFgA",
+  authDomain: "rotina-luiza.firebaseapp.com",
+  projectId: "rotina-luiza",
+  storageBucket: "rotina-luiza.firebasestorage.app",
+  messagingSenderId: "503915102532",
+  appId: "1:503915102532:web:7cfa5cb22ec002ab879711",
+};
+
+let db = null;
+let firestoreApi = null;
+const isFirebaseConfigured = firebaseConfig.apiKey !== "COLE_AQUI";
+
+if (isFirebaseConfigured){
+  try {
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const fs = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const app = initializeApp(firebaseConfig);
+    db = fs.getFirestore(app);
+    firestoreApi = fs;
+    try { await fs.enableIndexedDbPersistence(db); } catch(e) { /* múltiplas abas abertas, ignora */ }
+  } catch(e){
+    console.error('Falha ao iniciar Firebase, usando modo local.', e);
+    db = null;
+  }
+}
+
+/* ---------- Configuração do cronograma ---------- */
+// Janelas na ordem em que ocorrem após cada "despertou" do dia.
+// duração em minutos, tarefas obrigatórias dentro da janela.
+const SCHEDULE = [
+  { label: '1º despertar', duration: 60,  tasks: ['Mamar', 'Atividade'] },
+  { label: '2º despertar', duration: 90,  tasks: ['Mamar', 'Banho', 'Atividade'] },
+  { label: '3º despertar', duration: 90,  tasks: ['Mamar', 'Atividade'] },
+  { label: '4º despertar', duration: 90,  tasks: ['Mamar', 'Atividade'] },
+  { label: '5º despertar', duration: 90,  tasks: ['Mamar', 'Atividade lenta'] },
+  { label: 'Ritual noturno', duration: 90, tasks: ['Mamar', 'Banho', 'Mamar', 'Ninar'] },
+];
+// Tarefas que contam como "Mamar" / "Banho" / "Atividade" mesmo com texto diferente.
+function taskMatchesEvent(task, ev){
+  const t = task.toLowerCase();
+  if (t.startsWith('mamar')) return ev.type === 'mamou';
+  if (t.startsWith('banho')) return ev.type === 'banho';
+  if (t.startsWith('ninar')) return ev.type === 'dormiu';
+  if (t.startsWith('atividade')) return ev.type === 'atividade';
+  return false;
+}
+
+const TYPE_LABELS = {
+  despertou: { label: 'Despertou', tag: 'despertou', emoji: '☀️' },
+  mamou:     { label: 'Mamou',     tag: 'mamou',     emoji: '🍼' },
+  dormiu:    { label: 'Dormiu',    tag: 'dormiu',    emoji: '🌙' },
+  banho:     { label: 'Banho',     tag: 'banho',     emoji: '🛁' },
+  atividade: { label: 'Atividade', tag: 'atividade', emoji: '🧸' },
+  despertar_noturno: { label: 'Despertar noturno', tag: 'despertar_noturno', emoji: '🌃' },
+};
+
+/* ---------- Persistência ---------- */
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function storageKey(date){ return 'luiza-rotina-' + date; }
+function loadLocalEvents(date){
+  try { return JSON.parse(localStorage.getItem(storageKey(date))) || []; }
+  catch(e){ return []; }
+}
+function saveLocalEvents(date, events){
+  localStorage.setItem(storageKey(date), JSON.stringify(events));
+}
+
+let currentDate = todayStr();
+let currentEvents = loadLocalEvents(currentDate);
+let unsubscribeSnapshot = null;
+
+function renderSyncBanner(state){
+  const area = document.getElementById('syncBanner');
+  if (!isFirebaseConfigured){
+    area.innerHTML = `<div class="banner setup">⚙️ Modo local — os dados só ficam salvos neste navegador. Configure o Firebase no código para sincronizar entre aparelhos.</div>`;
+  } else if (state === 'online'){
+    area.innerHTML = `<div class="banner online">☁️ Sincronizado entre os aparelhos</div>`;
+  } else {
+    area.innerHTML = `<div class="banner offline">⚠️ Sem conexão — salvando localmente, sincroniza quando voltar a internet</div>`;
+  }
+}
+
+function subscribeToDate(date){
+  if (unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+
+  if (!db){
+    currentEvents = loadLocalEvents(date);
+    renderSyncBanner('local');
+    render();
+    return;
+  }
+
+  const ref = firestoreApi.doc(db, 'rotina_luiza', date);
+  unsubscribeSnapshot = firestoreApi.onSnapshot(ref,
+    snap => {
+      currentEvents = (snap.exists() && snap.data().events) || [];
+      renderSyncBanner('online');
+      render();
+    },
+    err => {
+      console.error('Erro ao sincronizar, usando dados locais.', err);
+      currentEvents = loadLocalEvents(date);
+      renderSyncBanner('offline');
+      render();
+    }
+  );
+}
+
+async function persistEvents(date, events){
+  saveLocalEvents(date, events); // sempre guarda uma cópia local
+  if (db){
+    try {
+      await firestoreApi.setDoc(firestoreApi.doc(db, 'rotina_luiza', date), { events });
+    } catch(e){
+      console.error('Falha ao salvar na nuvem, ficou salvo só localmente.', e);
+      renderSyncBanner('offline');
+    }
+  }
+}
+
+document.getElementById('dateInput').value = currentDate;
+document.getElementById('dateInput').addEventListener('change', e => {
+  currentDate = e.target.value || todayStr();
+  subscribeToDate(currentDate);
+});
+
+/* ---------- Modal ---------- */
+function openModal(type){
+  document.getElementById('modalType').value = type;
+  document.getElementById('modalTitle').textContent = 'Registrar: ' + (TYPE_LABELS[type] ? TYPE_LABELS[type].label : 'Evento');
+  const now = new Date();
+  document.getElementById('fieldTime').value = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  const extra = document.getElementById('extraFields');
+  extra.innerHTML = '';
+  if (type === 'mamou'){
+    extra.innerHTML = `<label>Duração (minutos, opcional)</label><input type="number" id="fieldDuration" min="0" placeholder="ex: 18">`;
+  } else if (type === 'outro'){
+    extra.innerHTML = `
+      <label>Tipo</label>
+      <select id="fieldOtherType">
+        <option value="banho">🛁 Banho</option>
+        <option value="atividade">🧸 Atividade</option>
+      </select>`;
+  } else if (type === 'despertar_noturno'){
+    extra.innerHTML = `
+      <label>Tempo de abordagem no berço (minutos)</label>
+      <input type="number" id="fieldAbordagemMin" min="0" placeholder="ex: 10">
+
+      <label>A abordagem no berço foi efetiva? (ela voltou a dormir sem colo)</label>
+      <select id="fieldEfetivo" onchange="toggleNaoEfetivo()">
+        <option value="sim">✔ Sim, dormiu no berço</option>
+        <option value="nao">✘ Não, foi preciso colo/ninar</option>
+      </select>
+
+      <div id="naoEfetivoBlock" class="subblock" style="display:none;">
+        <label>Horário que dormiu novamente</label>
+        <input type="time" id="fieldDormiuNovamente">
+
+        <label>Precisou mamar?</label>
+        <select id="fieldMamouNovamente" onchange="toggleMamouDuracao()">
+          <option value="nao">Não</option>
+          <option value="sim">Sim</option>
+        </select>
+
+        <div id="mamouDuracaoBlock" style="display:none;">
+          <label>Duração da mamada (minutos, opcional)</label>
+          <input type="number" id="fieldMamouNovamenteDuration" min="0" placeholder="ex: 12">
+        </div>
+      </div>
+
+      <label>Anotações (fralda, choro, outra demanda...)</label>
+      <textarea id="fieldAnotacao" placeholder="ex: trocou fralda, estava com gases..."></textarea>
+    `;
+  }
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function toggleNaoEfetivo(){
+  const efetivo = document.getElementById('fieldEfetivo').value;
+  document.getElementById('naoEfetivoBlock').style.display = efetivo === 'nao' ? 'block' : 'none';
+}
+function toggleMamouDuracao(){
+  const mamou = document.getElementById('fieldMamouNovamente').value;
+  document.getElementById('mamouDuracaoBlock').style.display = mamou === 'sim' ? 'block' : 'none';
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
+
+function saveEvent(){
+  let type = document.getElementById('modalType').value;
+  const time = document.getElementById('fieldTime').value;
+  if (!time) { alert('Informe um horário.'); return; }
+
+  if (type === 'outro') type = document.getElementById('fieldOtherType').value;
+
+  const ev = { type, time, id: Date.now() };
+  if (type === 'mamou'){
+    const dur = document.getElementById('fieldDuration');
+    if (dur && dur.value) ev.duration = parseInt(dur.value, 10);
+  } else if (type === 'despertar_noturno'){
+    const abordagem = document.getElementById('fieldAbordagemMin');
+    ev.abordagemMin = abordagem.value ? parseInt(abordagem.value, 10) : null;
+    ev.efetivo = document.getElementById('fieldEfetivo').value === 'sim';
+    if (!ev.efetivo){
+      ev.dormiuNovamente = document.getElementById('fieldDormiuNovamente').value || null;
+      ev.mamouNovamente = document.getElementById('fieldMamouNovamente').value === 'sim';
+      if (ev.mamouNovamente){
+        const d = document.getElementById('fieldMamouNovamenteDuration');
+        ev.mamouNovamenteDuration = d.value ? parseInt(d.value, 10) : null;
+      }
+    }
+    const nota = document.getElementById('fieldAnotacao').value.trim();
+    if (nota) ev.anotacao = nota;
+  }
+
+  const events = [...currentEvents, ev].sort((a,b) => a.time.localeCompare(b.time));
+  currentEvents = events;
+  persistEvents(currentDate, events);
+  closeModal();
+  render();
+}
+
+function deleteEvent(id){
+  if (!confirm('Remover este registro?')) return;
+  const events = currentEvents.filter(e => e.id !== id);
+  currentEvents = events;
+  persistEvents(currentDate, events);
+  render();
+}
+
+/* ---------- Cálculo da janela atual ---------- */
+function timeToMinutes(t){
+  const [h,m] = t.split(':').map(Number);
+  return h*60+m;
+}
+function minutesToClock(mins){
+  mins = ((mins % 1440) + 1440) % 1440;
+  const h = Math.floor(mins/60), m = Math.round(mins%60);
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+
+function computeWindows(events){
+  // Cada "despertou" abre uma nova janela, na ordem do SCHEDULE (cicla se passar do fim).
+  const wakeEvents = events.filter(e => e.type === 'despertou').sort((a,b)=>a.time.localeCompare(b.time));
+  const windows = [];
+  wakeEvents.forEach((wake, idx) => {
+    const sched = SCHEDULE[Math.min(idx, SCHEDULE.length-1)];
+    const startMin = timeToMinutes(wake.time);
+    const endMin = startMin + sched.duration;
+    // próximo "dormiu" depois desse despertar fecha a janela antes do previsto
+    const sleepAfter = events
+      .filter(e => e.type === 'dormiu' && timeToMinutes(e.time) >= startMin)
+      .sort((a,b)=>a.time.localeCompare(b.time))[0];
+    const closedAt = sleepAfter ? timeToMinutes(sleepAfter.time) : null;
+    // eventos dentro da janela (entre o despertar e o fechamento ou agora)
+    const boundEnd = closedAt !== null ? closedAt : endMin + 999999; // sem limite até dormir, mas alerta passa de endMin
+    const innerEvents = events.filter(e => {
+      const t = timeToMinutes(e.time);
+      return t >= startMin && t <= (closedAt !== null ? closedAt : 1440*2);
+    });
+    windows.push({
+      index: idx, sched, wake, startMin, endMin, closedAt, innerEvents,
+      isLast: idx === wakeEvents.length - 1,
+    });
+  });
+  return windows;
+}
+
+function windowStatus(win, nowMin){
+  if (win.closedAt !== null){
+    return win.closedAt <= win.endMin ? 'ok' : 'danger';
+  }
+  const remaining = win.endMin - nowMin;
+  if (remaining < 0) return 'danger';
+  if (remaining <= 15) return 'warn';
+  return 'ok';
+}
+
+let tickInterval = null;
+let alertedWindowKey = null; // evita repetir o som para a mesma janela
+
+function playAlertSound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const beep = (delay) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.4, ctx.currentTime + delay + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + 0.3);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.32);
+    };
+    beep(0); beep(0.4); beep(0.8);
+  } catch(e){ /* áudio indisponível */ }
+}
+
+function render(){
+  renderCurrentWindow(currentEvents);
+  renderHistory(currentEvents);
+}
+
+function renderCurrentWindow(events){
+  const area = document.getElementById('currentWindowArea');
+  const windows = computeWindows(events);
+  const openWindow = windows.find(w => w.isLast && w.closedAt === null);
+
+  if (!openWindow){
+    area.innerHTML = `<div class="card empty">Nenhuma janela aberta. Registre "☀️ Despertou" para iniciar uma janela de sono.</div>`;
+    if (tickInterval) clearInterval(tickInterval);
+    return;
+  }
+
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
+  const status = windowStatus(openWindow, nowMin);
+  const remainingMin = openWindow.endMin - nowMin;
+
+  const windowKey = currentDate + '_' + openWindow.index + '_' + openWindow.wake.time;
+  if (remainingMin <= 20 && remainingMin > 0 && alertedWindowKey !== windowKey){
+    alertedWindowKey = windowKey;
+    playAlertSound();
+  }
+  const pct = Math.max(0, Math.min(100, (nowMin - openWindow.startMin) / openWindow.sched.duration * 100));
+
+  const tasksHtml = openWindow.sched.tasks.map(task => {
+    const done = openWindow.innerEvents.some(ev => taskMatchesEvent(task, ev));
+    return `<span class="chip ${done ? 'done' : ''}">${done ? '✔ ' : ''}${task}</span>`;
+  }).join('');
+
+  const sign = remainingMin >= 0 ? '' : '+';
+  const absMin = Math.abs(remainingMin);
+  const clockTxt = String(Math.floor(absMin/60)).padStart(2,'0') + ':' + String(Math.floor(absMin%60)).padStart(2,'0') + ':' + String(Math.floor((absMin*60)%60)).padStart(2,'0');
+  const remainingLabel = remainingMin >= 0 ? 'restante' : 'atrasado';
+
+  area.innerHTML = `
+    <div class="card window-card ${status}">
+      <div class="window-title">${openWindow.sched.label} — janela de ${openWindow.sched.duration === 60 ? '1h' : '1h30'}</div>
+      <div class="window-sub">Despertou às ${openWindow.wake.time} · fim previsto ${minutesToClock(openWindow.endMin)}</div>
+      <div class="timer ${status}">${sign}${clockTxt}</div>
+      <div class="window-sub" style="text-align:center; margin-top:-6px;">${remainingLabel}</div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%; background:${status==='danger' ? 'var(--danger)' : status==='warn' ? 'var(--warn)' : 'var(--primary)'}"></div></div>
+      <div class="checklist">${tasksHtml}</div>
+    </div>
+  `;
+
+  if (tickInterval) clearInterval(tickInterval);
+  tickInterval = setInterval(() => renderCurrentWindow(currentEvents), 1000);
+}
+
+function renderEventDetail(ev){
+  if (ev.type !== 'despertar_noturno') return '';
+  const lines = [];
+  if (ev.abordagemMin !== null && ev.abordagemMin !== undefined){
+    lines.push(`Abordagem no berço: ${ev.abordagemMin} min`);
+  }
+  lines.push(ev.efetivo ? 'Efetiva — voltou a dormir no berço' : 'Não efetiva — precisou colo/ninar');
+  if (!ev.efetivo){
+    if (ev.dormiuNovamente) lines.push(`Dormiu novamente às ${ev.dormiuNovamente}`);
+    lines.push(ev.mamouNovamente
+      ? `Mamou${ev.mamouNovamenteDuration ? ' (' + ev.mamouNovamenteDuration + ' min)' : ''}`
+      : 'Não mamou');
+  }
+  if (ev.anotacao) lines.push(`Obs: ${ev.anotacao}`);
+  return lines.map(l => `<span class="detail-line">${l}</span>`).join('');
+}
+
+function renderHistory(events){
+  const area = document.getElementById('historyArea');
+  if (!events.length){
+    area.innerHTML = `<div class="empty">Nenhum evento registrado ainda hoje.</div>`;
+    return;
+  }
+  const sorted = [...events].sort((a,b)=>a.time.localeCompare(b.time));
+  const rows = sorted.map(ev => {
+    const info = TYPE_LABELS[ev.type] || { label: ev.type, tag: 'atividade', emoji: '•' };
+    const extra = ev.duration ? ` (${ev.duration} min)` : '';
+    return `<tr>
+      <td>${ev.time}</td>
+      <td>
+        <span class="tag tag-${info.tag}">${info.emoji} ${info.label}</span>${extra}
+        ${renderEventDetail(ev)}
+      </td>
+      <td><button class="small danger-btn" onclick="deleteEvent(${ev.id})">Remover</button></td>
+    </tr>`;
+  }).join('');
+  area.innerHTML = `<table><thead><tr><th>Horário</th><th>Evento</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.saveEvent = saveEvent;
+window.deleteEvent = deleteEvent;
+window.toggleNaoEfetivo = toggleNaoEfetivo;
+window.toggleMamouDuracao = toggleMamouDuracao;
+
+subscribeToDate(currentDate);
+</script>
+</body>
+</html>
