@@ -99,22 +99,81 @@
   .banner.setup{background:#fff4d6; color:#8a6d1c; border:1px solid #f0d98c;}
   .banner.online{background:#e3f3ea; color:#2f6b4a; border:1px solid #bfe3cd;}
   .banner.offline{background:#fde8e8; color:#a23a3a; border:1px solid #f3c2c2;}
+
+  /* Abas de navegação */
+  .tabs{display:flex; border-bottom:2px solid var(--border); margin-bottom:16px;}
+  .tab{
+    flex:1; padding:10px 0; text-align:center; font-size:0.9rem; font-weight:600;
+    color:var(--muted); cursor:pointer; border:none; background:none;
+    border-bottom:3px solid transparent; margin-bottom:-2px;
+  }
+  .tab.active{color:var(--primary-dark); border-bottom-color:var(--primary);}
+
+  /* Histórico de dias */
+  .hist-day{margin-bottom:12px;}
+  .hist-day-header{
+    display:flex; justify-content:space-between; align-items:center;
+    cursor:pointer; padding:12px 16px; background:var(--card);
+    border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    font-weight:600;
+  }
+  .hist-day-header:hover{background:#fef0f3;}
+  .hist-day-header .meta{font-size:0.8rem; color:var(--muted); font-weight:400; margin-left:8px;}
+  .hist-day-header .icons{display:flex; gap:8px; align-items:center;}
+  .icon-btn{
+    background:none; border:none; cursor:pointer; font-size:1.1rem; padding:4px;
+    color:var(--muted); border-radius:6px;
+  }
+  .icon-btn:hover{background:var(--border); color:var(--text);}
+  .hist-day-body{display:none; padding:0 4px;}
+  .hist-day-body.open{display:block;}
+  .hist-loading{color:var(--muted); text-align:center; padding:24px 0; font-size:0.9rem;}
+  .export-all-row{display:flex; justify-content:flex-end; margin-bottom:12px;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Rotina de Sono &amp; Cuidados — Luiza</h1>
   <div id="syncBanner"></div>
-  <div class="date-row">
-    <span>📅</span>
-    <input type="date" id="dateInput">
+
+  <div class="tabs">
+    <button class="tab active" id="tabHoje" onclick="showView('hoje')">📅 Hoje</button>
+    <button class="tab" id="tabHistorico" onclick="showView('historico')">📋 Histórico</button>
   </div>
 
-  <div id="currentWindowArea"></div>
+  <!-- View: Hoje -->
+  <div id="viewHoje">
+    <div class="date-row">
+      <span>📅</span>
+      <input type="date" id="dateInput">
+    </div>
+    <div id="currentWindowArea"></div>
+    <div class="card">
+      <div class="window-title" style="margin-bottom:8px;">Histórico do dia</div>
+      <div id="historyArea"></div>
+    </div>
+  </div>
 
-  <div class="card">
-    <div class="window-title" style="margin-bottom:8px;">Histórico do dia</div>
-    <div id="historyArea"></div>
+  <!-- View: Histórico -->
+  <div id="viewHistorico" style="display:none;">
+    <div class="card" style="margin-bottom:12px; padding:12px 16px;">
+      <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end;">
+        <div style="flex:1; min-width:130px;">
+          <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">De</label>
+          <input type="date" id="filterFrom" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:0.9rem;">
+        </div>
+        <div style="flex:1; min-width:130px;">
+          <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">Até</label>
+          <input type="date" id="filterTo" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:0.9rem;">
+        </div>
+        <button class="secondary small" onclick="applyFilter()" style="white-space:nowrap;">🔍 Filtrar</button>
+        <button class="secondary small" onclick="clearFilter()" style="white-space:nowrap;">✕ Limpar</button>
+      </div>
+    </div>
+    <div class="export-all-row">
+      <button class="secondary small" onclick="exportAllCSV()">📥 Exportar período (CSV)</button>
+    </div>
+    <div id="allDaysArea"><div class="hist-loading">Carregando registros…</div></div>
   </div>
 </div>
 
@@ -180,12 +239,12 @@ if (isFirebaseConfigured){
 // Janelas na ordem em que ocorrem após cada "despertou" do dia.
 // duração em minutos, tarefas obrigatórias dentro da janela.
 const SCHEDULE = [
-  { label: '1º despertar', duration: 60,  tasks: ['Mamar', 'Atividade'] },
-  { label: '2º despertar', duration: 90,  tasks: ['Mamar', 'Banho', 'Atividade'] },
-  { label: '3º despertar', duration: 90,  tasks: ['Mamar', 'Atividade'] },
-  { label: '4º despertar', duration: 90,  tasks: ['Mamar', 'Atividade'] },
-  { label: '5º despertar', duration: 90,  tasks: ['Mamar', 'Atividade lenta'] },
-  { label: 'Ritual noturno', duration: 90, tasks: ['Mamar', 'Banho', 'Mamar', 'Ninar'] },
+  { label: '1º despertar', duration: 90,  tasks: ['Mamar', 'Atividade'] },
+  { label: '2º despertar', duration: 120, tasks: ['Mamar', 'Banho', 'Atividade'] },
+  { label: '3º despertar', duration: 120, tasks: ['Mamar', 'Atividade'] },
+  { label: '4º despertar', duration: 120, tasks: ['Mamar', 'Atividade'] },
+  { label: '5º despertar', duration: 120, tasks: ['Mamar', 'Atividade lenta'] },
+  { label: 'Ritual noturno', duration: 120, tasks: ['Mamar', 'Banho', 'Mamar', 'Ninar'] },
 ];
 // Tarefas que contam como "Mamar" / "Banho" / "Atividade" mesmo com texto diferente.
 function taskMatchesEvent(task, ev){
@@ -492,7 +551,7 @@ function renderCurrentWindow(events){
 
   area.innerHTML = `
     <div class="card window-card ${status}">
-      <div class="window-title">${openWindow.sched.label} — janela de ${openWindow.sched.duration === 60 ? '1h' : '1h30'}</div>
+      <div class="window-title">${openWindow.sched.label} — janela de ${openWindow.sched.duration === 90 ? '1h30' : '2h'}</div>
       <div class="window-sub">Despertou às ${openWindow.wake.time} · fim previsto ${minutesToClock(openWindow.endMin)}</div>
       <div class="timer ${status}">${sign}${clockTxt}</div>
       <div class="window-sub" style="text-align:center; margin-top:-6px;">${remainingLabel}</div>
@@ -544,12 +603,169 @@ function renderHistory(events){
   area.innerHTML = `<table><thead><tr><th>Horário</th><th>Evento</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-window.openModal = openModal;
-window.closeModal = closeModal;
-window.saveEvent = saveEvent;
-window.deleteEvent = deleteEvent;
+/* ---------- Navegação entre views ---------- */
+function showView(view){
+  document.getElementById('viewHoje').style.display      = view === 'hoje'      ? '' : 'none';
+  document.getElementById('viewHistorico').style.display = view === 'historico' ? '' : 'none';
+  document.getElementById('tabHoje').classList.toggle('active',      view === 'hoje');
+  document.getElementById('tabHistorico').classList.toggle('active', view === 'historico');
+  if (view === 'historico') loadAllDays();
+}
+
+/* ---------- Histórico completo ---------- */
+function formatDateLabel(dateStr){
+  const [y,m,d] = dateStr.split('-');
+  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const dt = new Date(Number(y), Number(m)-1, Number(d));
+  return `${days[dt.getDay()]}, ${d}/${m}/${y}`;
+}
+
+function eventsToCSVRows(dateStr, events){
+  return events.map(ev => {
+    const info = TYPE_LABELS[ev.type] || { label: ev.type };
+    const duration  = ev.duration || '';
+    const abordagem = ev.abordagemMin ?? '';
+    const efetivo   = ev.efetivo === undefined ? '' : (ev.efetivo ? 'Sim' : 'Não');
+    const dormNov   = ev.dormiuNovamente || '';
+    const mamouNov  = ev.mamouNovamente === undefined ? '' : (ev.mamouNovamente ? 'Sim' : 'Não');
+    const mamDur    = ev.mamouNovamenteDuration || '';
+    const nota      = (ev.anotacao || '').replace(/"/g,'""');
+    return `"${dateStr}","${ev.time}","${info.label}","${duration}","${abordagem}","${efetivo}","${dormNov}","${mamouNov}","${mamDur}","${nota}"`;
+  });
+}
+
+function downloadCSV(filename, rows){
+  const header = '"Data","Horário","Evento","Duração mamada (min)","Abordagem berço (min)","Abordagem efetiva","Dormiu novamente","Mamou no berço","Duração mamada noturna (min)","Anotações"';
+  const blob = new Blob([[header, ...rows].join('\n')], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportDayCSV(dateStr, events){
+  downloadCSV(`rotina-luiza-${dateStr}.csv`, eventsToCSVRows(dateStr, events));
+}
+
+function currentFilteredDocs(){
+  const from = document.getElementById('filterFrom').value;
+  const to   = document.getElementById('filterTo').value;
+  return allDaysCache.filter(({ date }) => {
+    if (from && date < from) return false;
+    if (to   && date > to)   return false;
+    return true;
+  });
+}
+
+function applyFilter(){ renderDays(currentFilteredDocs()); }
+
+function clearFilter(){
+  document.getElementById('filterFrom').value = '';
+  document.getElementById('filterTo').value   = '';
+  renderDays(allDaysCache);
+}
+
+function exportAllCSV(){
+  const docs = currentFilteredDocs();
+  const allRows = docs.flatMap(({ date, events }) => eventsToCSVRows(date, events));
+  if (!allRows.length){ alert('Nenhum dado para exportar.'); return; }
+  const from = document.getElementById('filterFrom').value;
+  const to   = document.getElementById('filterTo').value;
+  const suffix = (from && to) ? `${from}_${to}` : (from || to || 'completo');
+  downloadCSV(`rotina-luiza-${suffix}.csv`, allRows);
+}
+
+async function loadAllDays(){
+  const area = document.getElementById('allDaysArea');
+  area.innerHTML = '<div class="hist-loading">Carregando registros…</div>';
+  allDaysCache = [];
+
+  if (db){
+    try {
+      const snap = await firestoreApi.getDocs(
+        firestoreApi.collection(db, 'rotina_luiza')
+      );
+      snap.forEach(doc => {
+        const events = (doc.data().events || []).sort((a,b)=>a.time.localeCompare(b.time));
+        if (events.length) allDaysCache.push({ date: doc.id, events });
+      });
+    } catch(e){ console.error('Erro ao carregar histórico do Firestore:', e); }
+  }
+
+  // complementa com dados locais não sincronizados
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('luiza-rotina-'))
+    .forEach(k => {
+      const dateStr = k.replace('luiza-rotina-','');
+      if (!allDaysCache.find(d => d.date === dateStr)){
+        try {
+          const events = JSON.parse(localStorage.getItem(k)) || [];
+          if (events.length) allDaysCache.push({ date: dateStr, events });
+        } catch(e){}
+      }
+    });
+
+  allDaysCache.sort((a,b) => b.date.localeCompare(a.date));
+  renderDays(allDaysCache);
+}
+
+function toggleDayBody(dateStr){
+  const body = document.getElementById('body-' + dateStr);
+  body.classList.toggle('open');
+}
+
+let allDaysCache = []; // { date, events } — carregado uma vez, filtrado na renderização
+
+function renderDays(docs){
+  const area = document.getElementById('allDaysArea');
+  if (!docs.length){
+    area.innerHTML = '<div class="empty">Nenhum registro encontrado para este período.</div>';
+    return;
+  }
+  area.innerHTML = docs.map(({ date, events }) => {
+    const label   = formatDateLabel(date);
+    const total   = events.length;
+    const desps   = events.filter(e => e.type === 'despertou').length;
+    const mamadas = events.filter(e => e.type === 'mamou').length;
+    const rows    = events.map(ev => {
+      const info  = TYPE_LABELS[ev.type] || { label: ev.type, tag:'atividade', emoji:'•' };
+      const extra = ev.duration ? ` (${ev.duration} min)` : '';
+      return `<tr>
+        <td>${ev.time}</td>
+        <td><span class="tag tag-${info.tag}">${info.emoji} ${info.label}</span>${extra}${renderEventDetail(ev)}</td>
+      </tr>`;
+    }).join('');
+    const evJson = JSON.stringify(events).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
+    return `
+      <div class="hist-day" data-date="${date}" data-events="${evJson}">
+        <div class="hist-day-header" onclick="toggleDayBody('${date}')">
+          <span>${label} <span class="meta">${total} evento${total!==1?'s':''} · ${desps} desp. · ${mamadas} mamada${mamadas!==1?'s':''}</span></span>
+          <span class="icons">
+            <button class="icon-btn" title="Exportar CSV deste dia" onclick="event.stopPropagation(); exportDayCSV('${date}', JSON.parse(this.closest('[data-date]').dataset.events.replace(/&quot;/g,'\"')))">📥</button>
+            <span>▾</span>
+          </span>
+        </div>
+        <div class="hist-day-body" id="body-${date}">
+          <div class="card" style="margin-top:8px; padding:10px;">
+            <table><thead><tr><th>Horário</th><th>Evento</th></tr></thead><tbody>${rows}</tbody></table>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+window.openModal        = openModal;
+window.closeModal       = closeModal;
+window.saveEvent        = saveEvent;
+window.deleteEvent      = deleteEvent;
 window.toggleNaoEfetivo = toggleNaoEfetivo;
 window.toggleMamouDuracao = toggleMamouDuracao;
+window.showView         = showView;
+window.toggleDayBody    = toggleDayBody;
+window.exportDayCSV     = exportDayCSV;
+window.exportAllCSV     = exportAllCSV;
+window.applyFilter      = applyFilter;
+window.clearFilter      = clearFilter;
 
 subscribeToDate(currentDate);
 </script>
