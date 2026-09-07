@@ -5,189 +5,768 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rotina da Luiza</title>
 <style>
-  :root{--bg:#fdf6f0;--card:#ffffff;--primary:#e08ca0;--primary-dark:#c96a82;--ok:#6fae8a;--warn:#e0a23c;--danger:#d9534f;--text:#3a2f33;--muted:#8c7e83;--border:#f0dfe3;}
+  :root{
+    --bg:#fdf6f0; --card:#ffffff; --primary:#e08ca0; --primary-dark:#c96a82;
+    --ok:#6fae8a; --warn:#e0a23c; --danger:#d9534f; --text:#3a2f33; --muted:#8c7e83;
+    --border:#f0dfe3;
+  }
   *{box-sizing:border-box;}
-  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);}
-  .wrap{max-width:720px;margin:0 auto;padding:16px 16px 80px;}
-  h1{font-size:1.4rem;text-align:center;margin:12px 0 4px;}
-  .date-row{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:16px;}
-  .date-row input{border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:0.95rem;}
-  .card{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:16px;}
-  .window-card{position:relative;overflow:hidden;}
+  body{
+    margin:0; font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--bg); color:var(--text);
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:16px 16px 80px;}
+  h1{font-size:1.4rem; text-align:center; margin:12px 0 4px;}
+  .date-row{display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:16px;}
+  .date-row input{border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-size:0.95rem;}
+
+  .card{
+    background:var(--card); border-radius:16px; padding:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-bottom:16px;
+  }
+  .window-card{position:relative; overflow:hidden;}
   .window-card.ok{border-left:6px solid var(--ok);}
   .window-card.warn{border-left:6px solid var(--warn);}
   .window-card.danger{border-left:6px solid var(--danger);}
-  .window-title{font-weight:600;font-size:1.1rem;margin-bottom:4px;}
-  .window-sub{color:var(--muted);font-size:0.85rem;margin-bottom:10px;}
-  .timer{font-size:2rem;font-weight:700;text-align:center;margin:8px 0;}
-  .timer.ok{color:var(--ok);}.timer.warn{color:var(--warn);}.timer.danger{color:var(--danger);}
-  .bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
-  .bar-fill{height:100%;background:var(--primary);transition:width .3s;}
-  .checklist{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
-  .chip{border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:0.85rem;background:#fff;color:var(--muted);user-select:none;}
-  .chip.done{background:var(--ok);color:#fff;border-color:var(--ok);}
-  .actions{display:flex;flex-wrap:wrap;gap:8px;}
-  button{border:none;border-radius:10px;padding:10px 14px;font-size:0.9rem;font-weight:600;cursor:pointer;color:#fff;background:var(--primary);}
-  button.secondary{background:#fff;color:var(--primary-dark);border:1px solid var(--primary);}
-  button.small{padding:6px 10px;font-size:0.8rem;}
+  .window-title{font-weight:600; font-size:1.1rem; margin-bottom:4px;}
+  .window-sub{color:var(--muted); font-size:0.85rem; margin-bottom:10px;}
+  .timer{font-size:2rem; font-weight:700; text-align:center; margin:8px 0;}
+  .timer.ok{color:var(--ok);} .timer.warn{color:var(--warn);} .timer.danger{color:var(--danger);}
+  .bar{height:8px; background:var(--border); border-radius:4px; overflow:hidden; margin-bottom:12px;}
+  .bar-fill{height:100%; background:var(--primary); transition:width .3s;}
+
+  .checklist{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}
+  .chip{
+    border:1px solid var(--border); border-radius:20px; padding:6px 12px; font-size:0.85rem;
+    background:#fff; color:var(--muted); user-select:none;
+  }
+  .chip.done{background:var(--ok); color:#fff; border-color:var(--ok);}
+
+  .actions{display:flex; flex-wrap:wrap; gap:8px;}
+  button{
+    border:none; border-radius:10px; padding:10px 14px; font-size:0.9rem; font-weight:600;
+    cursor:pointer; color:#fff; background:var(--primary);
+  }
+  button.secondary{background:#fff; color:var(--primary-dark); border:1px solid var(--primary);}
+  button.small{padding:6px 10px; font-size:0.8rem;}
   button.danger-btn{background:var(--danger);}
   button:active{opacity:0.85;}
-  table{width:100%;border-collapse:collapse;font-size:0.85rem;}
-  th,td{padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);}
-  th{color:var(--muted);font-weight:600;}
-  .tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.75rem;color:#fff;}
-  .tag-despertou{background:#5b9bd5;}.tag-mamou{background:#e08ca0;}
-  .tag-dormiu{background:#6c63a8;}.tag-banho{background:#3cb6c9;}
-  .tag-atividade{background:#e0a23c;}.tag-ninar{background:#8d6a9f;}
+
+  table{width:100%; border-collapse:collapse; font-size:0.85rem;}
+  th,td{padding:6px 8px; text-align:left; border-bottom:1px solid var(--border);}
+  th{color:var(--muted); font-weight:600;}
+  .tag{display:inline-block; padding:2px 8px; border-radius:12px; font-size:0.75rem; color:#fff;}
+  .tag-despertou{background:#5b9bd5;} .tag-mamou{background:#e08ca0;}
+  .tag-dormiu{background:#6c63a8;} .tag-banho{background:#3cb6c9;}
+  .tag-atividade{background:#e0a23c;} .tag-ninar{background:#8d6a9f;}
   .tag-despertar_noturno{background:#34495e;}
-  .detail-line{display:block;color:var(--muted);font-size:0.78rem;margin-top:2px;}
-  .empty{color:var(--muted);text-align:center;padding:20px 0;font-size:0.9rem;}
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  .detail-line{display:block; color:var(--muted); font-size:0.78rem; margin-top:2px;}
+
+  .empty{color:var(--muted); text-align:center; padding:20px 0; font-size:0.9rem;}
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.4); display:none;
+    align-items:flex-end; justify-content:center; z-index:50;
+  }
   .modal-overlay.open{display:flex;}
-  .modal{background:#fff;border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:720px;max-height:85vh;overflow:auto;}
+  .modal{
+    background:#fff; border-radius:16px 16px 0 0; padding:20px; width:100%; max-width:720px;
+    max-height:85vh; overflow:auto;
+  }
   .modal h3{margin-top:0;}
-  .modal label{display:block;font-size:0.85rem;color:var(--muted);margin:10px 0 4px;}
-  .modal input,.modal select,.modal textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:1rem;font-family:inherit;}
-  .modal textarea{resize:vertical;min-height:60px;}
-  .subblock{border-left:3px solid var(--primary);padding-left:10px;margin-top:14px;}
-  .modal-actions{display:flex;gap:8px;margin-top:16px;}
+  .modal label{display:block; font-size:0.85rem; color:var(--muted); margin:10px 0 4px;}
+  .modal input, .modal select, .modal textarea{
+    width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:1rem;
+    font-family:inherit;
+  }
+  .modal textarea{resize:vertical; min-height:60px;}
+  .subblock{
+    border-left:3px solid var(--primary); padding-left:10px; margin-top:14px;
+  }
+  .modal-actions{display:flex; gap:8px; margin-top:16px;}
   .modal-actions button{flex:1;}
-  .footer-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;gap:8px;padding:10px 16px;justify-content:center;flex-wrap:wrap;}
-  .footer-bar button{flex:1;max-width:160px;}
-  @media (min-width:600px){.footer-bar{justify-content:center;}}
-  .banner{border-radius:12px;padding:10px 14px;font-size:0.8rem;margin-bottom:12px;text-align:center;}
-  .banner.setup{background:#fff4d6;color:#8a6d1c;border:1px solid #f0d98c;}
-  .banner.online{background:#e3f3ea;color:#2f6b4a;border:1px solid #bfe3cd;}
-  .banner.offline{background:#fde8e8;color:#a23a3a;border:1px solid #f3c2c2;}
-  .tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:16px;}
-  .tab{flex:1;padding:10px 0;text-align:center;font-size:0.9rem;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;margin-bottom:-2px;}
-  .tab.active{color:var(--primary-dark);border-bottom-color:var(--primary);}
+
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--border);
+    display:flex; gap:8px; padding:10px 16px; justify-content:center; flex-wrap:wrap;
+  }
+  .footer-bar button{flex:1; max-width:160px;}
+  @media (min-width:600px){ .footer-bar{justify-content:center;} }
+
+  .banner{
+    border-radius:12px; padding:10px 14px; font-size:0.8rem; margin-bottom:12px; text-align:center;
+  }
+  .banner.setup{background:#fff4d6; color:#8a6d1c; border:1px solid #f0d98c;}
+  .banner.online{background:#e3f3ea; color:#2f6b4a; border:1px solid #bfe3cd;}
+  .banner.offline{background:#fde8e8; color:#a23a3a; border:1px solid #f3c2c2;}
+
+  /* Abas de navegação */
+  .tabs{display:flex; border-bottom:2px solid var(--border); margin-bottom:16px;}
+  .tab{
+    flex:1; padding:10px 0; text-align:center; font-size:0.9rem; font-weight:600;
+    color:var(--muted); cursor:pointer; border:none; background:none;
+    border-bottom:3px solid transparent; margin-bottom:-2px;
+  }
+  .tab.active{color:var(--primary-dark); border-bottom-color:var(--primary);}
+
+  /* Histórico de dias */
   .hist-day{margin-bottom:12px;}
-  .hist-day-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:12px 16px;background:var(--card);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);font-weight:600;}
+  .hist-day-header{
+    display:flex; justify-content:space-between; align-items:center;
+    cursor:pointer; padding:12px 16px; background:var(--card);
+    border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    font-weight:600;
+  }
   .hist-day-header:hover{background:#fef0f3;}
-  .hist-day-header .meta{font-size:0.8rem;color:var(--muted);font-weight:400;margin-left:8px;}
-  .hist-day-header .icons{display:flex;gap:8px;align-items:center;}
-  .icon-btn{background:none;border:none;cursor:pointer;font-size:1.1rem;padding:4px;color:var(--muted);border-radius:6px;}
-  .icon-btn:hover{background:var(--border);color:var(--text);}
-  .hist-day-body{display:none;padding:0 4px;}
+  .hist-day-header .meta{font-size:0.8rem; color:var(--muted); font-weight:400; margin-left:8px;}
+  .hist-day-header .icons{display:flex; gap:8px; align-items:center;}
+  .icon-btn{
+    background:none; border:none; cursor:pointer; font-size:1.1rem; padding:4px;
+    color:var(--muted); border-radius:6px;
+  }
+  .icon-btn:hover{background:var(--border); color:var(--text);}
+  .hist-day-body{display:none; padding:0 4px;}
   .hist-day-body.open{display:block;}
-  .hist-loading{color:var(--muted);text-align:center;padding:24px 0;font-size:0.9rem;}
-  .export-all-row{display:flex;justify-content:flex-end;margin-bottom:12px;}
+  .hist-loading{color:var(--muted); text-align:center; padding:24px 0; font-size:0.9rem;}
+  .export-all-row{display:flex; justify-content:flex-end; margin-bottom:12px;}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Rotina de Sono &amp; Cuidados &#8212; Luiza</h1>
+  <h1>Rotina de Sono &amp; Cuidados — Luiza</h1>
   <div id="syncBanner"></div>
+
   <div class="tabs">
-    <button class="tab active" id="tabHoje" onclick="showView('hoje')">&#128197; Hoje</button>
-    <button class="tab" id="tabHistorico" onclick="showView('historico')">&#128203; Historico</button>
+    <button class="tab active" id="tabHoje" onclick="showView('hoje')">📅 Hoje</button>
+    <button class="tab" id="tabHistorico" onclick="showView('historico')">📋 Histórico</button>
   </div>
+
+  <!-- View: Hoje -->
   <div id="viewHoje">
     <div class="date-row">
-      <span>&#128197;</span>
+      <span>📅</span>
       <input type="date" id="dateInput">
     </div>
     <div id="currentWindowArea"></div>
     <div class="card">
-      <div class="window-title" style="margin-bottom:8px;">Historico do dia</div>
+      <div class="window-title" style="margin-bottom:8px;">Histórico do dia</div>
       <div id="historyArea"></div>
     </div>
   </div>
+
+  <!-- View: Histórico -->
   <div id="viewHistorico" style="display:none;">
-    <div class="card" style="margin-bottom:12px;padding:12px 16px;">
-      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">
-        <div style="flex:1;min-width:130px;">
-          <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:4px;">De</label>
-          <input type="date" id="filterFrom" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;">
+    <div class="card" style="margin-bottom:12px; padding:12px 16px;">
+      <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end;">
+        <div style="flex:1; min-width:130px;">
+          <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">De</label>
+          <input type="date" id="filterFrom" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:0.9rem;">
         </div>
-        <div style="flex:1;min-width:130px;">
-          <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:4px;">Ate</label>
-          <input type="date" id="filterTo" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;">
+        <div style="flex:1; min-width:130px;">
+          <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">Até</label>
+          <input type="date" id="filterTo" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:0.9rem;">
         </div>
-        <button class="secondary small" onclick="applyFilter()" style="white-space:nowrap;">Filtrar</button>
-        <button class="secondary small" onclick="clearFilter()" style="white-space:nowrap;">Limpar</button>
+        <button class="secondary small" onclick="applyFilter()" style="white-space:nowrap;">🔍 Filtrar</button>
+        <button class="secondary small" onclick="clearFilter()" style="white-space:nowrap;">✕ Limpar</button>
       </div>
     </div>
     <div class="export-all-row">
-      <button class="secondary small" onclick="exportAllCSV()">Exportar periodo (CSV)</button>
+      <button class="secondary small" onclick="exportAllCSV()">📥 Exportar período (CSV)</button>
     </div>
-    <div id="allDaysArea"><div class="hist-loading">Carregando registros...</div></div>
+    <div id="allDaysArea"><div class="hist-loading">Carregando registros…</div></div>
   </div>
 </div>
+
 <div class="footer-bar">
-  <button class="secondary" onclick="openModal('despertou')">Despertou</button>
-  <button class="secondary" onclick="openModal('mamou')">Mamou</button>
-  <button class="secondary" onclick="openModal('dormiu')">Dormiu</button>
-  <button class="secondary" onclick="openModal('despertar_noturno')">Desp. noturno</button>
-  <button class="secondary" onclick="openModal('outro')">Outro</button>
+  <button class="secondary" onclick="openModal('despertou')">☀️ Despertou</button>
+  <button class="secondary" onclick="openModal('mamou')">🍼 Mamou</button>
+  <button class="secondary" onclick="openModal('dormiu')">🌙 Dormiu</button>
+  <button class="secondary" onclick="openModal('despertar_noturno')">🌃 Desp. noturno</button>
+  <button class="secondary" onclick="openModal('outro')">➕ Outro</button>
 </div>
+
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <h3 id="modalTitle">Registrar evento</h3>
     <input type="hidden" id="modalType">
-    <label>Horario</label>
+
+    <label>Horário</label>
     <input type="time" id="fieldTime">
+
     <div id="extraFields"></div>
+
     <div class="modal-actions">
       <button class="secondary" onclick="closeModal()">Cancelar</button>
       <button onclick="saveEvent()">Salvar</button>
     </div>
   </div>
 </div>
+
 <script type="module">
-const firebaseConfig={apiKey:"AIzaSyBVi0f7N1zuukujtRpj1mtMCpoBGurNFgA",authDomain:"rotina-luiza.firebaseapp.com",projectId:"rotina-luiza",storageBucket:"rotina-luiza.firebasestorage.app",messagingSenderId:"503915102532",appId:"1:503915102532:web:7cfa5cb22ec002ab879711"};
-let db=null,firestoreApi=null;
-const isFirebaseConfigured=firebaseConfig.apiKey!=="COLE_AQUI";
-if(isFirebaseConfigured){try{const{initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");const fs=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");const app=initializeApp(firebaseConfig);db=fs.getFirestore(app);firestoreApi=fs;try{await fs.enableIndexedDbPersistence(db);}catch(e){}}catch(e){db=null;}}
-const SCHEDULE=[{label:'1o despertar',duration:120,tasks:['Mamar','Atividade']},{label:'2o despertar',duration:150,tasks:['Mamar','Banho','Atividade']},{label:'3o despertar',duration:150,tasks:['Mamar','Atividade']},{label:'4o despertar',duration:150,tasks:['Mamar','Atividade']},{label:'5o despertar',duration:150,tasks:['Mamar','Atividade lenta']},{label:'Ritual noturno',duration:150,tasks:['Mamar','Banho','Mamar','Ninar']}];
-function taskMatchesEvent(task,ev){const t=task.toLowerCase();if(t.startsWith('mamar'))return ev.type==='mamou';if(t.startsWith('banho'))return ev.type==='banho';if(t.startsWith('ninar'))return ev.type==='dormiu';if(t.startsWith('atividade'))return ev.type==='atividade';return false;}
-const TYPE_LABELS={despertou:{label:'Despertou',tag:'despertou',emoji:'S'},mamou:{label:'Mamou',tag:'mamou',emoji:'M'},dormiu:{label:'Dormiu',tag:'dormiu',emoji:'D'},banho:{label:'Banho',tag:'banho',emoji:'B'},atividade:{label:'Atividade',tag:'atividade',emoji:'A'},despertar_noturno:{label:'Despertar noturno',tag:'despertar_noturno',emoji:'N'}};
-function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function storageKey(date){return 'luiza-rotina-'+date;}
-function loadLocalEvents(date){try{return JSON.parse(localStorage.getItem(storageKey(date)))||[];}catch(e){return[];}}
-function saveLocalEvents(date,events){localStorage.setItem(storageKey(date),JSON.stringify(events));}
-let currentDate=todayStr(),currentEvents=loadLocalEvents(currentDate),unsubscribeSnapshot=null;
-function renderSyncBanner(state){const area=document.getElementById('syncBanner');if(!isFirebaseConfigured){area.innerHTML='<div class="banner setup">Modo local - configure o Firebase para sincronizar entre aparelhos.</div>';}else if(state==='online'){area.innerHTML='<div class="banner online">Sincronizado entre os aparelhos</div>';}else{area.innerHTML='<div class="banner offline">Sem conexao - salvando localmente</div>';}}
-function subscribeToDate(date){if(unsubscribeSnapshot){unsubscribeSnapshot();unsubscribeSnapshot=null;}if(!db){currentEvents=loadLocalEvents(date);renderSyncBanner('local');render();return;}const ref=firestoreApi.doc(db,'rotina_luiza',date);unsubscribeSnapshot=firestoreApi.onSnapshot(ref,snap=>{currentEvents=(snap.exists()&&snap.data().events)||[];renderSyncBanner('online');render();},err=>{currentEvents=loadLocalEvents(date);renderSyncBanner('offline');render();});}
-async function persistEvents(date,events){saveLocalEvents(date,events);if(db){try{await firestoreApi.setDoc(firestoreApi.doc(db,'rotina_luiza',date),{events});}catch(e){renderSyncBanner('offline');}}}
-document.getElementById('dateInput').value=currentDate;
-document.getElementById('dateInput').addEventListener('change',e=>{currentDate=e.target.value||todayStr();subscribeToDate(currentDate);});
-function openModal(type){document.getElementById('modalType').value=type;document.getElementById('modalTitle').textContent='Registrar: '+(TYPE_LABELS[type]?TYPE_LABELS[type].label:'Evento');const now=new Date();document.getElementById('fieldTime').value=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');const extra=document.getElementById('extraFields');extra.innerHTML='';if(type==='mamou'){extra.innerHTML='<label>Duracao (minutos, opcional)</label><input type="number" id="fieldDuration" min="0" placeholder="ex: 18">';}else if(type==='outro'){extra.innerHTML='<label>Tipo</label><select id="fieldOtherType"><option value="banho">Banho</option><option value="atividade">Atividade</option></select>';}else if(type==='despertar_noturno'){extra.innerHTML='<label>Abordagem no berco (minutos)</label><input type="number" id="fieldAbordagemMin" min="0" placeholder="ex: 10"><label>A abordagem foi efetiva?</label><select id="fieldEfetivo" onchange="toggleNaoEfetivo()"><option value="sim">Sim, dormiu no berco</option><option value="nao">Nao, precisou colo/ninar</option></select><div id="naoEfetivoBlock" class="subblock" style="display:none;"><label>Horario que dormiu novamente</label><input type="time" id="fieldDormiuNovamente"><label>Precisou mamar?</label><select id="fieldMamouNovamente" onchange="toggleMamouDuracao()"><option value="nao">Nao</option><option value="sim">Sim</option></select><div id="mamouDuracaoBlock" style="display:none;"><label>Duracao da mamada (min)</label><input type="number" id="fieldMamouNovamenteDuration" min="0" placeholder="ex: 12"></div></div><label>Anotacoes</label><textarea id="fieldAnotacao" placeholder="ex: trocou fralda..."></textarea>';}document.getElementById('modalOverlay').classList.add('open');}
-function toggleNaoEfetivo(){const e=document.getElementById('fieldEfetivo').value;document.getElementById('naoEfetivoBlock').style.display=e==='nao'?'block':'none';}
-function toggleMamouDuracao(){const m=document.getElementById('fieldMamouNovamente').value;document.getElementById('mamouDuracaoBlock').style.display=m==='sim'?'block':'none';}
-function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
-function saveEvent(){let type=document.getElementById('modalType').value;const time=document.getElementById('fieldTime').value;if(!time){alert('Informe um horario.');return;}if(type==='outro')type=document.getElementById('fieldOtherType').value;const ev={type,time,id:Date.now()};if(type==='mamou'){const dur=document.getElementById('fieldDuration');if(dur&&dur.value)ev.duration=parseInt(dur.value,10);}else if(type==='despertar_noturno'){const ab=document.getElementById('fieldAbordagemMin');ev.abordagemMin=ab.value?parseInt(ab.value,10):null;ev.efetivo=document.getElementById('fieldEfetivo').value==='sim';if(!ev.efetivo){ev.dormiuNovamente=document.getElementById('fieldDormiuNovamente').value||null;ev.mamouNovamente=document.getElementById('fieldMamouNovamente').value==='sim';if(ev.mamouNovamente){const d=document.getElementById('fieldMamouNovamenteDuration');ev.mamouNovamenteDuration=d.value?parseInt(d.value,10):null;}}const nota=document.getElementById('fieldAnotacao').value.trim();if(nota)ev.anotacao=nota;}const events=[...currentEvents,ev].sort((a,b)=>a.time.localeCompare(b.time));currentEvents=events;persistEvents(currentDate,events);closeModal();render();}
-function deleteEvent(id){if(!confirm('Remover este registro?'))return;const events=currentEvents.filter(e=>e.id!==id);currentEvents=events;persistEvents(currentDate,events);render();}
-function timeToMinutes(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
-function minutesToClock(mins){mins=((mins%1440)+1440)%1440;const h=Math.floor(mins/60),m=Math.round(mins%60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
-function computeWindows(events){const wakeEvents=events.filter(e=>e.type==='despertou').sort((a,b)=>a.time.localeCompare(b.time));return wakeEvents.map((wake,idx)=>{const sched=SCHEDULE[Math.min(idx,SCHEDULE.length-1)];const startMin=timeToMinutes(wake.time),endMin=startMin+sched.duration;const sleepAfter=events.filter(e=>e.type==='dormiu'&&timeToMinutes(e.time)>=startMin).sort((a,b)=>a.time.localeCompare(b.time))[0];const closedAt=sleepAfter?timeToMinutes(sleepAfter.time):null;const innerEvents=events.filter(e=>{const t=timeToMinutes(e.time);return t>=startMin&&t<=(closedAt!==null?closedAt:1440*2);});return{index:idx,sched,wake,startMin,endMin,closedAt,innerEvents,isLast:idx===wakeEvents.length-1};});}
-function windowStatus(win,nowMin){if(win.closedAt!==null)return win.closedAt<=win.endMin?'ok':'danger';const r=win.endMin-nowMin;if(r<0)return 'danger';if(r<=15)return 'warn';return 'ok';}
-let tickInterval=null,alertedWindowKey=null;
-function playAlertSound(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const beep=(delay)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='sine';osc.frequency.value=880;gain.gain.setValueAtTime(0.0001,ctx.currentTime+delay);gain.gain.exponentialRampToValueAtTime(0.4,ctx.currentTime+delay+0.02);gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+delay+0.3);osc.connect(gain);gain.connect(ctx.destination);osc.start(ctx.currentTime+delay);osc.stop(ctx.currentTime+delay+0.32);};beep(0);beep(0.4);beep(0.8);}catch(e){}}
-function render(){renderCurrentWindow(currentEvents);renderHistory(currentEvents);}
-function renderCurrentWindow(events){const area=document.getElementById('currentWindowArea');const windows=computeWindows(events);const openWindow=windows.find(w=>w.isLast&&w.closedAt===null);if(!openWindow){area.innerHTML='<div class="card empty">Nenhuma janela aberta. Registre Despertou para iniciar.</div>';if(tickInterval)clearInterval(tickInterval);return;}const now=new Date(),nowMin=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;const status=windowStatus(openWindow,nowMin),remainingMin=openWindow.endMin-nowMin;const windowKey=currentDate+'_'+openWindow.index+'_'+openWindow.wake.time;if(remainingMin<=20&&remainingMin>0&&alertedWindowKey!==windowKey){alertedWindowKey=windowKey;playAlertSound();}const pct=Math.max(0,Math.min(100,(nowMin-openWindow.startMin)/openWindow.sched.duration*100));const tasksHtml=openWindow.sched.tasks.map(task=>{const done=openWindow.innerEvents.some(ev=>taskMatchesEvent(task,ev));return '<span class="chip '+(done?'done':'')+'">'+task+'</span>';}).join('');const sign=remainingMin>=0?'':'+',absMin=Math.abs(remainingMin);const clockTxt=String(Math.floor(absMin/60)).padStart(2,'0')+':'+String(Math.floor(absMin%60)).padStart(2,'0')+':'+String(Math.floor((absMin*60)%60)).padStart(2,'0');area.innerHTML='<div class="card window-card '+status+'"><div class="window-title">'+openWindow.sched.label+' - janela de '+(openWindow.sched.duration===120?'2h':'2h30')+'</div><div class="window-sub">Despertou as '+openWindow.wake.time+' - fim previsto '+minutesToClock(openWindow.endMin)+'</div><div class="timer '+status+'">'+sign+clockTxt+'</div><div class="window-sub" style="text-align:center;margin-top:-6px;">'+(remainingMin>=0?'restante':'atrasado')+'</div><div class="bar"><div class="bar-fill" style="width:'+pct+'%;background:'+(status==='danger'?'var(--danger)':status==='warn'?'var(--warn)':'var(--primary)')+'"></div></div><div class="checklist">'+tasksHtml+'</div></div>';if(tickInterval)clearInterval(tickInterval);tickInterval=setInterval(()=>renderCurrentWindow(currentEvents),1000);}
-function renderEventDetail(ev){if(ev.type!=='despertar_noturno')return '';const lines=[];if(ev.abordagemMin!=null)lines.push('Abordagem no berco: '+ev.abordagemMin+' min');lines.push(ev.efetivo?'Efetiva - voltou a dormir no berco':'Nao efetiva - precisou colo/ninar');if(!ev.efetivo){if(ev.dormiuNovamente)lines.push('Dormiu novamente as '+ev.dormiuNovamente);lines.push(ev.mamouNovamente?'Mamou'+(ev.mamouNovamenteDuration?' ('+ev.mamouNovamenteDuration+' min)':''):'Nao mamou');}if(ev.anotacao)lines.push('Obs: '+ev.anotacao);return lines.map(l=>'<span class="detail-line">'+l+'</span>').join('');}
-function renderHistory(events){const area=document.getElementById('historyArea');if(!events.length){area.innerHTML='<div class="empty">Nenhum evento registrado ainda hoje.</div>';return;}const sorted=[...events].sort((a,b)=>a.time.localeCompare(b.time));const rows=sorted.map(ev=>{const info=TYPE_LABELS[ev.type]||{label:ev.type,tag:'atividade',emoji:'*'};const extra=ev.duration?' ('+ev.duration+' min)':'';return '<tr><td>'+ev.time+'</td><td><span class="tag tag-'+info.tag+'">'+info.label+'</span>'+extra+renderEventDetail(ev)+'</td><td><button class="small danger-btn" onclick="deleteEvent('+ev.id+')">Remover</button></td></tr>';}).join('');area.innerHTML='<table><thead><tr><th>Horario</th><th>Evento</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';}
-function showView(view){document.getElementById('viewHoje').style.display=view==='hoje'?'':'none';document.getElementById('viewHistorico').style.display=view==='historico'?'':'none';document.getElementById('tabHoje').classList.toggle('active',view==='hoje');document.getElementById('tabHistorico').classList.toggle('active',view==='historico');if(view==='historico')loadAllDays();}
-function formatDateLabel(dateStr){const[y,m,d]=dateStr.split('-');const days=['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];const dt=new Date(Number(y),Number(m)-1,Number(d));return days[dt.getDay()]+', '+d+'/'+m+'/'+y;}
-function eventsToCSVRows(dateStr,events){return events.map(ev=>{const info=TYPE_LABELS[ev.type]||{label:ev.type};const duration=ev.duration||'';const abordagem=ev.abordagemMin!=null?ev.abordagemMin:'';const efetivo=ev.efetivo===undefined?'':(ev.efetivo?'Sim':'Nao');const dormNov=ev.dormiuNovamente||'';const mamouNov=ev.mamouNovamente===undefined?'':(ev.mamouNovamente?'Sim':'Nao');const mamDur=ev.mamouNovamenteDuration||'';const nota=(ev.anotacao||'').replace(/"/g,'""');return '"'+dateStr+'","'+ev.time+'","'+info.label+'","'+duration+'","'+abordagem+'","'+efetivo+'","'+dormNov+'","'+mamouNov+'","'+mamDur+'","'+nota+'"';});}
-function downloadCSV(filename,rows){const header='"Data","Horario","Evento","Duracao mamada (min)","Abordagem berco (min)","Abordagem efetiva","Dormiu novamente","Mamou no berco","Duracao mamada noturna (min)","Anotacoes"';const blob=new Blob([[header,...rows].join('
-')],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);}
-function exportDayCSV(dateStr,events){downloadCSV('rotina-luiza-'+dateStr+'.csv',eventsToCSVRows(dateStr,events));}
-function currentFilteredDocs(){const from=document.getElementById('filterFrom').value,to=document.getElementById('filterTo').value;return allDaysCache.filter(({date})=>{if(from&&date<from)return false;if(to&&date>to)return false;return true;});}
-function applyFilter(){renderDays(currentFilteredDocs());}
-function clearFilter(){document.getElementById('filterFrom').value='';document.getElementById('filterTo').value='';renderDays(allDaysCache);}
-function exportAllCSV(){const docs=currentFilteredDocs();const allRows=docs.flatMap(({date,events})=>eventsToCSVRows(date,events));if(!allRows.length){alert('Nenhum dado para exportar.');return;}const from=document.getElementById('filterFrom').value,to=document.getElementById('filterTo').value;const suffix=(from&&to)?from+'_'+to:(from||to||'completo');downloadCSV('rotina-luiza-'+suffix+'.csv',allRows);}
-async function loadAllDays(){const area=document.getElementById('allDaysArea');area.innerHTML='<div class="hist-loading">Carregando registros...</div>';allDaysCache=[];if(db){try{const snap=await firestoreApi.getDocs(firestoreApi.collection(db,'rotina_luiza'));snap.forEach(doc=>{const events=(doc.data().events||[]).sort((a,b)=>a.time.localeCompare(b.time));if(events.length)allDaysCache.push({date:doc.id,events});});}catch(e){console.error(e);}}Object.keys(localStorage).filter(k=>k.startsWith('luiza-rotina-')).forEach(k=>{const dateStr=k.replace('luiza-rotina-','');if(!allDaysCache.find(d=>d.date===dateStr)){try{const events=JSON.parse(localStorage.getItem(k))||[];if(events.length)allDaysCache.push({date:dateStr,events});}catch(e){}}}); allDaysCache.sort((a,b)=>b.date.localeCompare(a.date));renderDays(allDaysCache);}
-function toggleDayBody(dateStr){const body=document.getElementById('body-'+dateStr);body.classList.toggle('open');}
-let allDaysCache=[];
-function renderDays(docs){const area=document.getElementById('allDaysArea');if(!docs.length){area.innerHTML='<div class="empty">Nenhum registro encontrado para este periodo.</div>';return;}area.innerHTML=docs.map(({date,events})=>{const label=formatDateLabel(date),total=events.length,desps=events.filter(e=>e.type==='despertou').length,mamadas=events.filter(e=>e.type==='mamou').length;const rows=events.map(ev=>{const info=TYPE_LABELS[ev.type]||{label:ev.type,tag:'atividade',emoji:'*'};const extra=ev.duration?' ('+ev.duration+' min)':'';return '<tr><td>'+ev.time+'</td><td><span class="tag tag-'+info.tag+'">'+info.label+'</span>'+extra+renderEventDetail(ev)+'</td></tr>';}).join('');const evJson=JSON.stringify(events).replace(/'/g,"&#39;").replace(/"/g,'&quot;');return '<div class="hist-day" data-date="'+date+'" data-events="'+evJson+'"><div class="hist-day-header" onclick="toggleDayBody(''+date+'')"><span>'+label+' <span class="meta">'+total+' evento'+(total!==1?'s':'')+' - '+desps+' desp. - '+mamadas+' mamada'+(mamadas!==1?'s':'')+'</span></span><span class="icons"><button class="icon-btn" onclick="event.stopPropagation();exportDayCSV(''+date+'',JSON.parse(this.closest('[data-date]').dataset.events.replace(/&quot;/g,'\"')))">CSV</button><span>v</span></span></div><div class="hist-day-body" id="body-'+date+'"><div class="card" style="margin-top:8px;padding:10px;"><table><thead><tr><th>Horario</th><th>Evento</th></tr></thead><tbody>'+rows+'</tbody></table></div></div></div>';}).join('');}
-window.openModal=openModal;window.closeModal=closeModal;window.saveEvent=saveEvent;window.deleteEvent=deleteEvent;
-window.toggleNaoEfetivo=toggleNaoEfetivo;window.toggleMamouDuracao=toggleMamouDuracao;
-window.showView=showView;window.toggleDayBody=toggleDayBody;
-window.exportDayCSV=exportDayCSV;window.exportAllCSV=exportAllCSV;
-window.applyFilter=applyFilter;window.clearFilter=clearFilter;
+/* ---------- Configuração do Firebase ----------
+   Para sincronizar entre vários celulares, crie um projeto gratuito em
+   https://console.firebase.google.com, ative o "Firestore Database" (modo de teste)
+   e cole aqui o objeto de configuração do app Web (Configurações do projeto > Seus apps > Web).
+   Enquanto não preencher, o app funciona normalmente salvando só neste navegador. */
+const firebaseConfig = {
+  apiKey: "AIzaSyBVi0f7N1zuukujtRpj1mtMCpoBGurNFgA",
+  authDomain: "rotina-luiza.firebaseapp.com",
+  projectId: "rotina-luiza",
+  storageBucket: "rotina-luiza.firebasestorage.app",
+  messagingSenderId: "503915102532",
+  appId: "1:503915102532:web:7cfa5cb22ec002ab879711",
+};
+
+let db = null;
+let firestoreApi = null;
+const isFirebaseConfigured = firebaseConfig.apiKey !== "COLE_AQUI";
+
+if (isFirebaseConfigured){
+  try {
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const fs = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const app = initializeApp(firebaseConfig);
+    db = fs.getFirestore(app);
+    firestoreApi = fs;
+    try { await fs.enableIndexedDbPersistence(db); } catch(e) { /* múltiplas abas abertas, ignora */ }
+  } catch(e){
+    console.error('Falha ao iniciar Firebase, usando modo local.', e);
+    db = null;
+  }
+}
+
+/* ---------- Configuração do cronograma ---------- */
+// Janelas na ordem em que ocorrem após cada "despertou" do dia.
+// duração em minutos, tarefas obrigatórias dentro da janela.
+const SCHEDULE = [
+  { label: '1º despertar', duration: 120, tasks: ['Mamar', 'Atividade'] },
+  { label: '2º despertar', duration: 150, tasks: ['Mamar', 'Banho', 'Atividade'] },
+  { label: '3º despertar', duration: 150, tasks: ['Mamar', 'Atividade'] },
+  { label: '4º despertar', duration: 150, tasks: ['Mamar', 'Atividade'] },
+  { label: '5º despertar', duration: 150, tasks: ['Mamar', 'Atividade lenta'] },
+  { label: 'Ritual noturno', duration: 150, tasks: ['Mamar', 'Banho', 'Mamar', 'Ninar'] },
+];
+// Tarefas que contam como "Mamar" / "Banho" / "Atividade" mesmo com texto diferente.
+function taskMatchesEvent(task, ev){
+  const t = task.toLowerCase();
+  if (t.startsWith('mamar')) return ev.type === 'mamou';
+  if (t.startsWith('banho')) return ev.type === 'banho';
+  if (t.startsWith('ninar')) return ev.type === 'dormiu';
+  if (t.startsWith('atividade')) return ev.type === 'atividade';
+  return false;
+}
+
+const TYPE_LABELS = {
+  despertou: { label: 'Despertou', tag: 'despertou', emoji: '☀️' },
+  mamou:     { label: 'Mamou',     tag: 'mamou',     emoji: '🍼' },
+  dormiu:    { label: 'Dormiu',    tag: 'dormiu',    emoji: '🌙' },
+  banho:     { label: 'Banho',     tag: 'banho',     emoji: '🛁' },
+  atividade: { label: 'Atividade', tag: 'atividade', emoji: '🧸' },
+  despertar_noturno: { label: 'Despertar noturno', tag: 'despertar_noturno', emoji: '🌃' },
+};
+
+/* ---------- Persistência ---------- */
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function storageKey(date){ return 'luiza-rotina-' + date; }
+function loadLocalEvents(date){
+  try { return JSON.parse(localStorage.getItem(storageKey(date))) || []; }
+  catch(e){ return []; }
+}
+function saveLocalEvents(date, events){
+  localStorage.setItem(storageKey(date), JSON.stringify(events));
+}
+
+let currentDate = todayStr();
+let currentEvents = loadLocalEvents(currentDate);
+let unsubscribeSnapshot = null;
+
+function renderSyncBanner(state){
+  const area = document.getElementById('syncBanner');
+  if (!isFirebaseConfigured){
+    area.innerHTML = `<div class="banner setup">⚙️ Modo local — os dados só ficam salvos neste navegador. Configure o Firebase no código para sincronizar entre aparelhos.</div>`;
+  } else if (state === 'online'){
+    area.innerHTML = `<div class="banner online">☁️ Sincronizado entre os aparelhos</div>`;
+  } else {
+    area.innerHTML = `<div class="banner offline">⚠️ Sem conexão — salvando localmente, sincroniza quando voltar a internet</div>`;
+  }
+}
+
+function subscribeToDate(date){
+  if (unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+
+  if (!db){
+    currentEvents = loadLocalEvents(date);
+    renderSyncBanner('local');
+    render();
+    return;
+  }
+
+  const ref = firestoreApi.doc(db, 'rotina_luiza', date);
+  unsubscribeSnapshot = firestoreApi.onSnapshot(ref,
+    snap => {
+      currentEvents = (snap.exists() && snap.data().events) || [];
+      renderSyncBanner('online');
+      render();
+    },
+    err => {
+      console.error('Erro ao sincronizar, usando dados locais.', err);
+      currentEvents = loadLocalEvents(date);
+      renderSyncBanner('offline');
+      render();
+    }
+  );
+}
+
+async function persistEvents(date, events){
+  saveLocalEvents(date, events); // sempre guarda uma cópia local
+  if (db){
+    try {
+      await firestoreApi.setDoc(firestoreApi.doc(db, 'rotina_luiza', date), { events });
+    } catch(e){
+      console.error('Falha ao salvar na nuvem, ficou salvo só localmente.', e);
+      renderSyncBanner('offline');
+    }
+  }
+}
+
+document.getElementById('dateInput').value = currentDate;
+document.getElementById('dateInput').addEventListener('change', e => {
+  currentDate = e.target.value || todayStr();
+  subscribeToDate(currentDate);
+});
+
+/* ---------- Modal ---------- */
+function openModal(type){
+  document.getElementById('modalType').value = type;
+  document.getElementById('modalTitle').textContent = 'Registrar: ' + (TYPE_LABELS[type] ? TYPE_LABELS[type].label : 'Evento');
+  const now = new Date();
+  document.getElementById('fieldTime').value = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  const extra = document.getElementById('extraFields');
+  extra.innerHTML = '';
+  if (type === 'mamou'){
+    extra.innerHTML = `<label>Duração (minutos, opcional)</label><input type="number" id="fieldDuration" min="0" placeholder="ex: 18">`;
+  } else if (type === 'outro'){
+    extra.innerHTML = `
+      <label>Tipo</label>
+      <select id="fieldOtherType">
+        <option value="banho">🛁 Banho</option>
+        <option value="atividade">🧸 Atividade</option>
+      </select>`;
+  } else if (type === 'despertar_noturno'){
+    extra.innerHTML = `
+      <label>Tempo de abordagem no berço (minutos)</label>
+      <input type="number" id="fieldAbordagemMin" min="0" placeholder="ex: 10">
+
+      <label>A abordagem no berço foi efetiva? (ela voltou a dormir sem colo)</label>
+      <select id="fieldEfetivo" onchange="toggleNaoEfetivo()">
+        <option value="sim">✔ Sim, dormiu no berço</option>
+        <option value="nao">✘ Não, foi preciso colo/ninar</option>
+      </select>
+
+      <div id="naoEfetivoBlock" class="subblock" style="display:none;">
+        <label>Horário que dormiu novamente</label>
+        <input type="time" id="fieldDormiuNovamente">
+
+        <label>Precisou mamar?</label>
+        <select id="fieldMamouNovamente" onchange="toggleMamouDuracao()">
+          <option value="nao">Não</option>
+          <option value="sim">Sim</option>
+        </select>
+
+        <div id="mamouDuracaoBlock" style="display:none;">
+          <label>Duração da mamada (minutos, opcional)</label>
+          <input type="number" id="fieldMamouNovamenteDuration" min="0" placeholder="ex: 12">
+        </div>
+      </div>
+
+      <label>Anotações (fralda, choro, outra demanda...)</label>
+      <textarea id="fieldAnotacao" placeholder="ex: trocou fralda, estava com gases..."></textarea>
+    `;
+  }
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function toggleNaoEfetivo(){
+  const efetivo = document.getElementById('fieldEfetivo').value;
+  document.getElementById('naoEfetivoBlock').style.display = efetivo === 'nao' ? 'block' : 'none';
+}
+function toggleMamouDuracao(){
+  const mamou = document.getElementById('fieldMamouNovamente').value;
+  document.getElementById('mamouDuracaoBlock').style.display = mamou === 'sim' ? 'block' : 'none';
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
+
+function saveEvent(){
+  let type = document.getElementById('modalType').value;
+  const time = document.getElementById('fieldTime').value;
+  if (!time) { alert('Informe um horário.'); return; }
+
+  if (type === 'outro') type = document.getElementById('fieldOtherType').value;
+
+  const ev = { type, time, id: Date.now() };
+  if (type === 'mamou'){
+    const dur = document.getElementById('fieldDuration');
+    if (dur && dur.value) ev.duration = parseInt(dur.value, 10);
+  } else if (type === 'despertar_noturno'){
+    const abordagem = document.getElementById('fieldAbordagemMin');
+    ev.abordagemMin = abordagem.value ? parseInt(abordagem.value, 10) : null;
+    ev.efetivo = document.getElementById('fieldEfetivo').value === 'sim';
+    if (!ev.efetivo){
+      ev.dormiuNovamente = document.getElementById('fieldDormiuNovamente').value || null;
+      ev.mamouNovamente = document.getElementById('fieldMamouNovamente').value === 'sim';
+      if (ev.mamouNovamente){
+        const d = document.getElementById('fieldMamouNovamenteDuration');
+        ev.mamouNovamenteDuration = d.value ? parseInt(d.value, 10) : null;
+      }
+    }
+    const nota = document.getElementById('fieldAnotacao').value.trim();
+    if (nota) ev.anotacao = nota;
+  }
+
+  const events = [...currentEvents, ev].sort((a,b) => a.time.localeCompare(b.time));
+  currentEvents = events;
+  persistEvents(currentDate, events);
+  closeModal();
+  render();
+}
+
+function deleteEvent(id){
+  if (!confirm('Remover este registro?')) return;
+  const events = currentEvents.filter(e => e.id !== id);
+  currentEvents = events;
+  persistEvents(currentDate, events);
+  render();
+}
+
+/* ---------- Cálculo da janela atual ---------- */
+function timeToMinutes(t){
+  const [h,m] = t.split(':').map(Number);
+  return h*60+m;
+}
+function minutesToClock(mins){
+  mins = ((mins % 1440) + 1440) % 1440;
+  const h = Math.floor(mins/60), m = Math.round(mins%60);
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+
+function computeWindows(events){
+  // Cada "despertou" abre uma nova janela, na ordem do SCHEDULE (cicla se passar do fim).
+  const wakeEvents = events.filter(e => e.type === 'despertou').sort((a,b)=>a.time.localeCompare(b.time));
+  const windows = [];
+  wakeEvents.forEach((wake, idx) => {
+    const sched = SCHEDULE[Math.min(idx, SCHEDULE.length-1)];
+    const startMin = timeToMinutes(wake.time);
+    const endMin = startMin + sched.duration;
+    // próximo "dormiu" depois desse despertar fecha a janela antes do previsto
+    const sleepAfter = events
+      .filter(e => e.type === 'dormiu' && timeToMinutes(e.time) >= startMin)
+      .sort((a,b)=>a.time.localeCompare(b.time))[0];
+    const closedAt = sleepAfter ? timeToMinutes(sleepAfter.time) : null;
+    // eventos dentro da janela (entre o despertar e o fechamento ou agora)
+    const boundEnd = closedAt !== null ? closedAt : endMin + 999999; // sem limite até dormir, mas alerta passa de endMin
+    const innerEvents = events.filter(e => {
+      const t = timeToMinutes(e.time);
+      return t >= startMin && t <= (closedAt !== null ? closedAt : 1440*2);
+    });
+    windows.push({
+      index: idx, sched, wake, startMin, endMin, closedAt, innerEvents,
+      isLast: idx === wakeEvents.length - 1,
+    });
+  });
+  return windows;
+}
+
+function windowStatus(win, nowMin){
+  if (win.closedAt !== null){
+    return win.closedAt <= win.endMin ? 'ok' : 'danger';
+  }
+  const remaining = win.endMin - nowMin;
+  if (remaining < 0) return 'danger';
+  if (remaining <= 15) return 'warn';
+  return 'ok';
+}
+
+let tickInterval = null;
+let alertedWindowKey = null; // evita repetir o som para a mesma janela
+
+function playAlertSound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const beep = (delay) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.4, ctx.currentTime + delay + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + 0.3);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.32);
+    };
+    beep(0); beep(0.4); beep(0.8);
+  } catch(e){ /* áudio indisponível */ }
+}
+
+function render(){
+  renderCurrentWindow(currentEvents);
+  renderHistory(currentEvents);
+}
+
+function renderCurrentWindow(events){
+  const area = document.getElementById('currentWindowArea');
+  const windows = computeWindows(events);
+  const openWindow = windows.find(w => w.isLast && w.closedAt === null);
+
+  if (!openWindow){
+    area.innerHTML = `<div class="card empty">Nenhuma janela aberta. Registre "☀️ Despertou" para iniciar uma janela de sono.</div>`;
+    if (tickInterval) clearInterval(tickInterval);
+    return;
+  }
+
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
+  const status = windowStatus(openWindow, nowMin);
+  const remainingMin = openWindow.endMin - nowMin;
+
+  const windowKey = currentDate + '_' + openWindow.index + '_' + openWindow.wake.time;
+  if (remainingMin <= 20 && remainingMin > 0 && alertedWindowKey !== windowKey){
+    alertedWindowKey = windowKey;
+    playAlertSound();
+  }
+  const pct = Math.max(0, Math.min(100, (nowMin - openWindow.startMin) / openWindow.sched.duration * 100));
+
+  const tasksHtml = openWindow.sched.tasks.map(task => {
+    const done = openWindow.innerEvents.some(ev => taskMatchesEvent(task, ev));
+    return `<span class="chip ${done ? 'done' : ''}">${done ? '✔ ' : ''}${task}</span>`;
+  }).join('');
+
+  const sign = remainingMin >= 0 ? '' : '+';
+  const absMin = Math.abs(remainingMin);
+  const clockTxt = String(Math.floor(absMin/60)).padStart(2,'0') + ':' + String(Math.floor(absMin%60)).padStart(2,'0') + ':' + String(Math.floor((absMin*60)%60)).padStart(2,'0');
+  const remainingLabel = remainingMin >= 0 ? 'restante' : 'atrasado';
+
+  area.innerHTML = `
+    <div class="card window-card ${status}">
+      <div class="window-title">${openWindow.sched.label} — janela de ${openWindow.sched.duration === 120 ? '2h' : '2h30'}</div>
+      <div class="window-sub">Despertou às ${openWindow.wake.time} · fim previsto ${minutesToClock(openWindow.endMin)}</div>
+      <div class="timer ${status}">${sign}${clockTxt}</div>
+      <div class="window-sub" style="text-align:center; margin-top:-6px;">${remainingLabel}</div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%; background:${status==='danger' ? 'var(--danger)' : status==='warn' ? 'var(--warn)' : 'var(--primary)'}"></div></div>
+      <div class="checklist">${tasksHtml}</div>
+    </div>
+  `;
+
+  if (tickInterval) clearInterval(tickInterval);
+  tickInterval = setInterval(() => renderCurrentWindow(currentEvents), 1000);
+}
+
+function renderEventDetail(ev){
+  if (ev.type !== 'despertar_noturno') return '';
+  const lines = [];
+  if (ev.abordagemMin !== null && ev.abordagemMin !== undefined){
+    lines.push(`Abordagem no berço: ${ev.abordagemMin} min`);
+  }
+  lines.push(ev.efetivo ? 'Efetiva — voltou a dormir no berço' : 'Não efetiva — precisou colo/ninar');
+  if (!ev.efetivo){
+    if (ev.dormiuNovamente) lines.push(`Dormiu novamente às ${ev.dormiuNovamente}`);
+    lines.push(ev.mamouNovamente
+      ? `Mamou${ev.mamouNovamenteDuration ? ' (' + ev.mamouNovamenteDuration + ' min)' : ''}`
+      : 'Não mamou');
+  }
+  if (ev.anotacao) lines.push(`Obs: ${ev.anotacao}`);
+  return lines.map(l => `<span class="detail-line">${l}</span>`).join('');
+}
+
+function renderHistory(events){
+  const area = document.getElementById('historyArea');
+  if (!events.length){
+    area.innerHTML = `<div class="empty">Nenhum evento registrado ainda hoje.</div>`;
+    return;
+  }
+  const sorted = [...events].sort((a,b)=>a.time.localeCompare(b.time));
+  const rows = sorted.map(ev => {
+    const info = TYPE_LABELS[ev.type] || { label: ev.type, tag: 'atividade', emoji: '•' };
+    const extra = ev.duration ? ` (${ev.duration} min)` : '';
+    return `<tr>
+      <td>${ev.time}</td>
+      <td>
+        <span class="tag tag-${info.tag}">${info.emoji} ${info.label}</span>${extra}
+        ${renderEventDetail(ev)}
+      </td>
+      <td><button class="small danger-btn" onclick="deleteEvent(${ev.id})">Remover</button></td>
+    </tr>`;
+  }).join('');
+  area.innerHTML = `<table><thead><tr><th>Horário</th><th>Evento</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---------- Navegação entre views ---------- */
+function showView(view){
+  document.getElementById('viewHoje').style.display      = view === 'hoje'      ? '' : 'none';
+  document.getElementById('viewHistorico').style.display = view === 'historico' ? '' : 'none';
+  document.getElementById('tabHoje').classList.toggle('active',      view === 'hoje');
+  document.getElementById('tabHistorico').classList.toggle('active', view === 'historico');
+  if (view === 'historico') loadAllDays();
+}
+
+/* ---------- Histórico completo ---------- */
+function formatDateLabel(dateStr){
+  const [y,m,d] = dateStr.split('-');
+  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const dt = new Date(Number(y), Number(m)-1, Number(d));
+  return `${days[dt.getDay()]}, ${d}/${m}/${y}`;
+}
+
+function eventsToCSVRows(dateStr, events){
+  return events.map(ev => {
+    const info = TYPE_LABELS[ev.type] || { label: ev.type };
+    const duration  = ev.duration || '';
+    const abordagem = ev.abordagemMin ?? '';
+    const efetivo   = ev.efetivo === undefined ? '' : (ev.efetivo ? 'Sim' : 'Não');
+    const dormNov   = ev.dormiuNovamente || '';
+    const mamouNov  = ev.mamouNovamente === undefined ? '' : (ev.mamouNovamente ? 'Sim' : 'Não');
+    const mamDur    = ev.mamouNovamenteDuration || '';
+    const nota      = (ev.anotacao || '').replace(/"/g,'""');
+    return `"${dateStr}","${ev.time}","${info.label}","${duration}","${abordagem}","${efetivo}","${dormNov}","${mamouNov}","${mamDur}","${nota}"`;
+  });
+}
+
+function downloadCSV(filename, rows){
+  const header = '"Data","Horário","Evento","Duração mamada (min)","Abordagem berço (min)","Abordagem efetiva","Dormiu novamente","Mamou no berço","Duração mamada noturna (min)","Anotações"';
+  const blob = new Blob([[header, ...rows].join('\n')], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportDayCSV(dateStr, events){
+  downloadCSV(`rotina-luiza-${dateStr}.csv`, eventsToCSVRows(dateStr, events));
+}
+
+function currentFilteredDocs(){
+  const from = document.getElementById('filterFrom').value;
+  const to   = document.getElementById('filterTo').value;
+  return allDaysCache.filter(({ date }) => {
+    if (from && date < from) return false;
+    if (to   && date > to)   return false;
+    return true;
+  });
+}
+
+function applyFilter(){ renderDays(currentFilteredDocs()); }
+
+function clearFilter(){
+  document.getElementById('filterFrom').value = '';
+  document.getElementById('filterTo').value   = '';
+  renderDays(allDaysCache);
+}
+
+function exportAllCSV(){
+  const docs = currentFilteredDocs();
+  const allRows = docs.flatMap(({ date, events }) => eventsToCSVRows(date, events));
+  if (!allRows.length){ alert('Nenhum dado para exportar.'); return; }
+  const from = document.getElementById('filterFrom').value;
+  const to   = document.getElementById('filterTo').value;
+  const suffix = (from && to) ? `${from}_${to}` : (from || to || 'completo');
+  downloadCSV(`rotina-luiza-${suffix}.csv`, allRows);
+}
+
+async function loadAllDays(){
+  const area = document.getElementById('allDaysArea');
+  area.innerHTML = '<div class="hist-loading">Carregando registros…</div>';
+  allDaysCache = [];
+
+  if (db){
+    try {
+      const snap = await firestoreApi.getDocs(
+        firestoreApi.collection(db, 'rotina_luiza')
+      );
+      snap.forEach(doc => {
+        const events = (doc.data().events || []).sort((a,b)=>a.time.localeCompare(b.time));
+        if (events.length) allDaysCache.push({ date: doc.id, events });
+      });
+    } catch(e){ console.error('Erro ao carregar histórico do Firestore:', e); }
+  }
+
+  // complementa com dados locais não sincronizados
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('luiza-rotina-'))
+    .forEach(k => {
+      const dateStr = k.replace('luiza-rotina-','');
+      if (!allDaysCache.find(d => d.date === dateStr)){
+        try {
+          const events = JSON.parse(localStorage.getItem(k)) || [];
+          if (events.length) allDaysCache.push({ date: dateStr, events });
+        } catch(e){}
+      }
+    });
+
+  allDaysCache.sort((a,b) => b.date.localeCompare(a.date));
+  renderDays(allDaysCache);
+}
+
+function toggleDayBody(dateStr){
+  const body = document.getElementById('body-' + dateStr);
+  body.classList.toggle('open');
+}
+
+let allDaysCache = []; // { date, events } — carregado uma vez, filtrado na renderização
+
+function renderDays(docs){
+  const area = document.getElementById('allDaysArea');
+  if (!docs.length){
+    area.innerHTML = '<div class="empty">Nenhum registro encontrado para este período.</div>';
+    return;
+  }
+  area.innerHTML = docs.map(({ date, events }) => {
+    const label   = formatDateLabel(date);
+    const total   = events.length;
+    const desps   = events.filter(e => e.type === 'despertou').length;
+    const mamadas = events.filter(e => e.type === 'mamou').length;
+    const rows    = events.map(ev => {
+      const info  = TYPE_LABELS[ev.type] || { label: ev.type, tag:'atividade', emoji:'•' };
+      const extra = ev.duration ? ` (${ev.duration} min)` : '';
+      return `<tr>
+        <td>${ev.time}</td>
+        <td><span class="tag tag-${info.tag}">${info.emoji} ${info.label}</span>${extra}${renderEventDetail(ev)}</td>
+      </tr>`;
+    }).join('');
+    const evJson = JSON.stringify(events).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
+    return `
+      <div class="hist-day" data-date="${date}" data-events="${evJson}">
+        <div class="hist-day-header" onclick="toggleDayBody('${date}')">
+          <span>${label} <span class="meta">${total} evento${total!==1?'s':''} · ${desps} desp. · ${mamadas} mamada${mamadas!==1?'s':''}</span></span>
+          <span class="icons">
+            <button class="icon-btn" title="Exportar CSV deste dia" onclick="event.stopPropagation(); exportDayCSV('${date}', JSON.parse(this.closest('[data-date]').dataset.events.replace(/&quot;/g,'\"')))">📥</button>
+            <span>▾</span>
+          </span>
+        </div>
+        <div class="hist-day-body" id="body-${date}">
+          <div class="card" style="margin-top:8px; padding:10px;">
+            <table><thead><tr><th>Horário</th><th>Evento</th></tr></thead><tbody>${rows}</tbody></table>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+window.openModal        = openModal;
+window.closeModal       = closeModal;
+window.saveEvent        = saveEvent;
+window.deleteEvent      = deleteEvent;
+window.toggleNaoEfetivo = toggleNaoEfetivo;
+window.toggleMamouDuracao = toggleMamouDuracao;
+window.showView         = showView;
+window.toggleDayBody    = toggleDayBody;
+window.exportDayCSV     = exportDayCSV;
+window.exportAllCSV     = exportAllCSV;
+window.applyFilter      = applyFilter;
+window.clearFilter      = clearFilter;
+
 subscribeToDate(currentDate);
 </script>
 </body>
